@@ -37,12 +37,19 @@ export function ChatLayout() {
   useEffect(() => {
     const savedConversations = localStorage.getItem("conversations");
     if (savedConversations) {
-      const parsedConversations = JSON.parse(savedConversations);
-      setConversations(parsedConversations);
-      const conversationIds = Object.keys(parsedConversations);
-      if (conversationIds.length > 0) {
-        setCurrentConversationId(conversationIds[0]);
-      } else {
+      try {
+        const parsedConversations = JSON.parse(savedConversations);
+        setConversations(parsedConversations);
+        const conversationIds = Object.keys(parsedConversations);
+        if (conversationIds.length > 0) {
+          // Sort by ID (timestamp) to get the most recent one
+          const sortedIds = conversationIds.sort((a, b) => Number(b) - Number(a));
+          setCurrentConversationId(sortedIds[0]);
+        } else {
+          handleNewChat();
+        }
+      } catch (error) {
+        console.error("Failed to parse conversations from localStorage", error);
         handleNewChat();
       }
     } else {
@@ -53,6 +60,9 @@ export function ChatLayout() {
   useEffect(() => {
     if (Object.keys(conversations).length > 0) {
       localStorage.setItem("conversations", JSON.stringify(conversations));
+    } else {
+      // If there are no conversations, clear localStorage
+      localStorage.removeItem("conversations");
     }
   }, [conversations]);
 
@@ -74,9 +84,10 @@ export function ChatLayout() {
       return newConversations;
     });
     if (currentConversationId === conversationId) {
-      const conversationIds = Object.keys(conversations).filter(id => id !== conversationId);
-      if (conversationIds.length > 0) {
-        setCurrentConversationId(conversationIds[0]);
+      const remainingIds = Object.keys(conversations).filter(id => id !== conversationId);
+      if (remainingIds.length > 0) {
+        const sortedIds = remainingIds.sort((a, b) => Number(b) - Number(a));
+        setCurrentConversationId(sortedIds[0]);
       } else {
         handleNewChat();
       }
@@ -87,7 +98,16 @@ export function ChatLayout() {
     setCurrentConversationId(conversationId);
   };
 
-  const currentMessages = currentConversationId ? conversations[currentConversationId]?.messages : [];
+  const handleImportConversations = (importedConversations: Record<string, Conversation>) => {
+    setConversations(importedConversations);
+    const conversationIds = Object.keys(importedConversations);
+    if (conversationIds.length > 0) {
+      const sortedIds = conversationIds.sort((a, b) => Number(b) - Number(a));
+      setCurrentConversationId(sortedIds[0]);
+    }
+  };
+
+  const currentMessages = (currentConversationId && conversations[currentConversationId]?.messages) || [];
 
   const handleSendMessage = useCallback(
     async (content: string) => {
@@ -99,18 +119,22 @@ export function ChatLayout() {
         content,
       };
       
-      const isFirstUserMessage = currentMessages.filter(m => m.role === 'user').length === 0;
+      const currentConvo = conversations[currentConversationId];
+      if (!currentConvo) return;
 
-      const updatedConversations = { ...conversations };
-      const updatedMessages = [...(updatedConversations[currentConversationId]?.messages || []), userMessage];
-      updatedConversations[currentConversationId] = {
-        ...updatedConversations[currentConversationId],
-        id: currentConversationId,
-        title: isFirstUserMessage ? content.substring(0, 30) : updatedConversations[currentConversationId].title,
-        messages: updatedMessages,
-      };
+      const isFirstUserMessage = currentConvo.messages.filter(m => m.role === 'user').length === 0;
 
-      setConversations(updatedConversations);
+      const updatedMessages = [...currentConvo.messages, userMessage];
+
+      setConversations(prev => ({
+        ...prev,
+        [currentConversationId]: {
+          ...currentConvo,
+          title: isFirstUserMessage ? content.substring(0, 30) : currentConvo.title,
+          messages: updatedMessages,
+        }
+      }));
+      
       setIsLoading(true);
 
       try {
@@ -131,13 +155,15 @@ export function ChatLayout() {
         };
         
         setConversations(prev => {
-          const finalConversations = {...prev};
+          const finalConvo = prev[currentConversationId];
           const finalMessages = [...updatedMessages, assistantMessage];
-          finalConversations[currentConversationId] = {
-            ...finalConversations[currentConversationId],
-            messages: finalMessages
-          }
-          return finalConversations;
+          return {
+            ...prev,
+            [currentConversationId]: {
+              ...finalConvo,
+              messages: finalMessages,
+            },
+          };
         });
 
       } catch (error) {
@@ -149,66 +175,77 @@ export function ChatLayout() {
           translation: "Desculpe, encontrei um erro. Por favor, tente novamente.",
         };
         setConversations(prev => {
-          const errorConversations = {...prev};
+          const errorConvo = prev[currentConversationId];
           const errorMessages = [...updatedMessages, errorMessage];
-          errorConversations[currentConversationId] = {
-            ...errorConversations[currentConversationId],
-            messages: errorMessages
-          }
-          return errorConversations;
+          return {
+            ...prev,
+            [currentConversationId]: {
+              ...errorConvo,
+              messages: errorMessages
+            },
+          };
         });
       } finally {
         setIsLoading(false);
       }
     },
-    [currentConversationId, conversations, currentMessages]
+    [currentConversationId, conversations]
   );
 
   const handleGetFeedback = useCallback(async (messageId: string) => {
-    if (!currentConversationId) return;
-    const message = conversations[currentConversationId]?.messages.find((m) => m.id === messageId);
+    if (!currentConversationId || !conversations[currentConversationId]) return;
+    
+    const message = conversations[currentConversationId].messages.find((m) => m.id === messageId);
     if (!message || message.role !== "user") return;
 
-    const updatedConversations = { ...conversations };
-    updatedConversations[currentConversationId].messages = updatedConversations[currentConversationId].messages.map((m) =>
-      m.id === messageId ? { ...m, isFeedbackLoading: true } : m
-    );
-    setConversations(updatedConversations);
+    setConversations(prev => ({
+      ...prev,
+      [currentConversationId]: {
+        ...prev[currentConversationId],
+        messages: prev[currentConversationId].messages.map((m) =>
+          m.id === messageId ? { ...m, isFeedbackLoading: true } : m
+        ),
+      },
+    }));
 
     try {
       const feedbackResponse = await getFeedback({ text: message.content });
-       setConversations(prev => {
-          const feedbackConversations = {...prev};
-          feedbackConversations[currentConversationId].messages = feedbackConversations[currentConversationId].messages.map((m) =>
-            m.id === messageId
-              ? {
-                  ...m,
-                  feedback: feedbackResponse.feedback,
-                  feedbackTranslation: feedbackResponse.translation,
-                  isFeedbackLoading: false,
-                }
-              : m
-          );
-          return feedbackConversations;
-       });
+       setConversations(prev => ({
+          ...prev,
+          [currentConversationId]: {
+            ...prev[currentConversationId],
+            messages: prev[currentConversationId].messages.map((m) =>
+              m.id === messageId
+                ? {
+                    ...m,
+                    feedback: feedbackResponse.feedback,
+                    feedbackTranslation: feedbackResponse.translation,
+                    isFeedbackLoading: false,
+                  }
+                : m
+            ),
+          },
+       }));
     } catch (error) {
       console.error("Error getting feedback:", error);
-      setConversations(prev => {
-        const errorConversations = {...prev};
-        errorConversations[currentConversationId].messages = errorConversations[currentConversationId].messages.map((m) =>
-          m.id === messageId
-            ? { ...m, feedback: "Sorry, could not get feedback.", isFeedbackLoading: false }
-            : m
-        );
-        return errorConversations;
-      });
+      setConversations(prev => ({
+        ...prev,
+        [currentConversationId]: {
+          ...prev[currentConversationId],
+          messages: prev[currentConversationId].messages.map((m) =>
+            m.id === messageId
+              ? { ...m, feedback: "Sorry, could not get feedback.", isFeedbackLoading: false }
+              : m
+          ),
+        },
+      }));
     }
   }, [currentConversationId, conversations]);
 
   const handleGetSummary = useCallback(async () => {
-    if (!currentConversationId) return;
+    if (!currentConversationId || !conversations[currentConversationId]) return;
 
-    const conversationHistory = conversations[currentConversationId]?.messages
+    const conversationHistory = conversations[currentConversationId].messages
       .map((msg) => `${msg.role}: ${msg.content}`)
       .join("\n");
     
@@ -231,12 +268,13 @@ export function ChatLayout() {
         onSelectChat={handleSelectChat}
         onNewChat={handleNewChat}
         onDeleteChat={handleDeleteChat}
+        onImport={handleImportConversations}
       />
       <div className="flex h-full w-full flex-col flex-1">
         <Header onSummarize={handleGetSummary} />
         <Card className="flex flex-1 flex-col overflow-hidden">
           <ChatMessages
-            messages={currentMessages || []}
+            messages={currentMessages}
             isLoading={isLoading}
             onGetFeedback={handleGetFeedback}
           />
