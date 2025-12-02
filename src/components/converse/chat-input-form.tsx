@@ -22,6 +22,7 @@ type ChatInputFormProps = {
 export function ChatInputForm({ onSendMessage, isLoading }: ChatInputFormProps) {
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const finalTranscriptRef = useRef<string>("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -43,15 +44,14 @@ export function ChatInputForm({ onSendMessage, isLoading }: ChatInputFormProps) 
 
       recognition.onresult = (event) => {
         let interimTranscript = "";
-        let finalTranscript = "";
         for (let i = event.resultIndex; i < event.results.length; ++i) {
           if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
+            finalTranscriptRef.current += event.results[i][0].transcript;
           } else {
             interimTranscript += event.results[i][0].transcript;
           }
         }
-        form.setValue("message", form.getValues("message") + finalTranscript + interimTranscript);
+        form.setValue("message", finalTranscriptRef.current + interimTranscript);
       };
 
       recognition.onend = () => {
@@ -80,6 +80,7 @@ export function ChatInputForm({ onSendMessage, isLoading }: ChatInputFormProps) 
     if (isListening) {
       recognitionRef.current?.stop();
     } else {
+      finalTranscriptRef.current = "";
       form.reset();
       recognitionRef.current?.start();
     }
