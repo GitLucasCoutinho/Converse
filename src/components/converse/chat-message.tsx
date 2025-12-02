@@ -1,13 +1,11 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Bot, Loader, Mic, Sparkles, User, Volume2 } from "lucide-react";
+import { Bot, Loader, Sparkles, User, Volume2 } from "lucide-react";
 import type { Message } from "@/lib/types";
-import { ConverseIcon } from "./icons";
+import { WordTranslator } from "./word-translator";
 
 type ChatMessageProps = {
   message: Message;
@@ -24,6 +22,9 @@ export function ChatMessage({ message, onGetFeedback }: ChatMessageProps) {
   };
 
   const isUser = message.role === "user";
+
+  // Split message into words and punctuation
+  const words = message.content.split(/(\s+|[.,!?;:"])/).filter(Boolean);
 
   return (
     <div
@@ -49,7 +50,11 @@ export function ChatMessage({ message, onGetFeedback }: ChatMessageProps) {
             : "bg-muted text-muted-foreground"
         )}
       >
-        <p className="whitespace-pre-wrap">{message.content}</p>
+        <p className="whitespace-pre-wrap">
+          {words.map((word, index) => (
+            <WordTranslator key={index} word={word} />
+          ))}
+        </p>
         
         {message.feedback && (
           <div className="mt-2 border-t border-muted-foreground/20 pt-2 text-sm">
