@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { useForm, useFormState } from "react-hook-form";
+import { useForm, useFormState, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,8 +22,7 @@ type ChatInputFormProps = {
 export function ChatInputForm({ onSendMessage, isLoading }: ChatInputFormProps) {
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const finalTranscriptRef = useRef<string>("");
-
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -32,7 +31,7 @@ export function ChatInputForm({ onSendMessage, isLoading }: ChatInputFormProps) 
   });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { isDirty } = useFormState({ control: form.control });
+  const messageValue = useWatch({ control: form.control, name: 'message' });
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -43,15 +42,17 @@ export function ChatInputForm({ onSendMessage, isLoading }: ChatInputFormProps) 
       recognition.lang = 'en-US';
 
       recognition.onresult = (event) => {
-        let interimTranscript = "";
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
+        let finalTranscript = '';
+        let interimTranscript = '';
+
+        for (let i = 0; i < event.results.length; ++i) {
           if (event.results[i].isFinal) {
-            finalTranscriptRef.current += event.results[i][0].transcript;
+            finalTranscript += event.results[i][0].transcript;
           } else {
             interimTranscript += event.results[i][0].transcript;
           }
         }
-        form.setValue("message", finalTranscriptRef.current + interimTranscript);
+        form.setValue("message", finalTranscript + interimTranscript, { shouldDirty: true });
       };
 
       recognition.onend = () => {
@@ -80,7 +81,6 @@ export function ChatInputForm({ onSendMessage, isLoading }: ChatInputFormProps) 
     if (isListening) {
       recognitionRef.current?.stop();
     } else {
-      finalTranscriptRef.current = "";
       form.reset();
       recognitionRef.current?.start();
     }
@@ -90,7 +90,7 @@ export function ChatInputForm({ onSendMessage, isLoading }: ChatInputFormProps) 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
-      if(isDirty) form.handleSubmit(onSubmit)();
+      if(messageValue) form.handleSubmit(onSubmit)();
     }
   };
 
@@ -141,7 +141,7 @@ export function ChatInputForm({ onSendMessage, isLoading }: ChatInputFormProps) 
             type="submit"
             size="icon"
             className="shrink-0"
-            disabled={isLoading || !isDirty}
+            disabled={isLoading || !messageValue}
             aria-label="Send message"
           >
             <SendHorizonal />
