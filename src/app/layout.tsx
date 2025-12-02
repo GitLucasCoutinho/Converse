@@ -28,7 +28,9 @@ export default function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="light-green"
+          enableSystem={false}
           disableTransitionOnChange
+          storageKey="converse-theme-v2"
         >
           {children}
           <Toaster />

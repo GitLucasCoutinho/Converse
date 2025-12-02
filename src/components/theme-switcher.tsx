@@ -25,25 +25,25 @@ const colorThemes = [
 ];
 
 export function ThemeSwitcher() {
-  const { setTheme, theme } = useTheme()
+  const { setTheme, theme, resolvedTheme } = useTheme()
 
   const handleColorChange = (color: string) => {
-    const currentMode = theme?.startsWith('dark') ? 'dark' : 'light';
-    setTheme(`${currentMode}-${color}`);
+    const currentMode = resolvedTheme?.startsWith('dark') ? 'dark' : 'light';
+    if (color === 'default') {
+        setTheme(currentMode);
+    } else {
+        setTheme(`${currentMode}-${color}`);
+    }
   };
   
   const handleModeChange = (mode: 'light' | 'dark') => {
-    const currentTheme = theme || 'light-green';
+    const currentTheme = theme || 'dark';
     const color = currentTheme.split('-')[1];
 
-    if (color && color !== 'light' && color !== 'dark') {
+    if (color && color !== 'light' && color !== 'dark' && color !== 'default') {
       setTheme(`${mode}-${color}`);
     } else {
-        if (mode === 'light') {
-            setTheme('light-green');
-        } else {
-            setTheme('dark');
-        }
+      setTheme(mode);
     }
   };
 
