@@ -14,15 +14,15 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 const colorThemes = [
-    { name: 'Lilac', value: 'light' },
-    { name: 'Green', value: 'light-green' },
-    { name: 'Blue', value: 'light-blue' },
-    { name: 'Pink', value: 'light-pink' },
-    { name: 'Red', value: 'light-red' },
+    { name: 'Lilac', value: 'light', bg: 'hsl(265 53% 94%)' },
+    { name: 'Green', value: 'light-green', bg: 'hsl(145 35% 94%)' },
+    { name: 'Blue', value: 'light-blue', bg: 'hsl(210 55% 94%)' },
+    { name: 'Pink', value: 'light-pink', bg: 'hsl(340 60% 94%)' },
+    { name: 'Red', value: 'light-red', bg: 'hsl(0 60% 94%)' },
 ];
 
 export function ThemeSwitcher() {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme()
 
   return (
     <DropdownMenu>
@@ -37,11 +37,9 @@ export function ThemeSwitcher() {
           <DropdownMenuItem key={colorTheme.value} onClick={() => setTheme(colorTheme.value)}>
             <div
               className="mr-2 h-4 w-4 rounded-full border flex items-center justify-center"
-              style={{
-                  backgroundColor: theme === colorTheme.value ? `hsl(var(--primary))` : 'transparent'
-              }}
+              style={{ backgroundColor: colorTheme.bg }}
             >
-                {theme === colorTheme.value && <Circle className="h-2 w-2 fill-current text-primary-foreground" />}
+                {theme === colorTheme.value && <Circle className="h-2 w-2 fill-current text-primary" />}
             </div>
             <span>{colorTheme.name}</span>
           </DropdownMenuItem>
