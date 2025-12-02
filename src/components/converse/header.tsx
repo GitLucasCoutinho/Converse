@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { ConverseIcon } from "@/components/converse/icons";
 import { BotMessageSquare } from "lucide-react";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 
 type HeaderProps = {
   onSummarize: () => void;
@@ -15,10 +16,13 @@ export function Header({ onSummarize }: HeaderProps) {
         <ConverseIcon className="h-8 w-8 text-primary" />
         <h1 className="text-2xl font-bold text-foreground">Converse</h1>
       </div>
-      <Button variant="outline" onClick={onSummarize}>
-        <BotMessageSquare className="mr-2 h-4 w-4" />
-        Summarize
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button variant="outline" onClick={onSummarize}>
+          <BotMessageSquare className="mr-2 h-4 w-4" />
+          Summarize
+        </Button>
+        <ThemeSwitcher />
+      </div>
     </header>
   );
 }
