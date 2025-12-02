@@ -17,8 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { Message, Conversation } from "@/lib/types";
 import { ChatHistory } from "./chat-history";
-import { onAuthStateChanged, type User } from 'firebase/auth';
-import { auth } from '@/firebase';
+import { useUser } from "@/hooks/use-user";
 
 
 const initialMessage: Message = {
@@ -30,8 +29,7 @@ const initialMessage: Message = {
 
 
 export function ChatLayout() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isUserLoading, setIsUserLoading] = useState(true);
+  const { user, isLoading: isUserLoading } = useUser();
   const [conversations, setConversations] = useState<Record<string, Conversation>>({});
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -39,14 +37,6 @@ export function ChatLayout() {
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
   
   const isLoggedIn = !!user;
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-        setUser(currentUser);
-        setIsUserLoading(false);
-      });
-      return () => unsubscribe();
-  }, []);
 
   useEffect(() => {
     if (isUserLoading) return; // Wait until user status is resolved
