@@ -4,4 +4,5 @@ export type Message = {
   content: string;
   feedback?: string;
   isFeedbackLoading?: boolean;
+  translation?: string;
 };

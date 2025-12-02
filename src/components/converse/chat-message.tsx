@@ -47,14 +47,20 @@ export function ChatMessage({ message, onGetFeedback }: ChatMessageProps) {
           "max-w-sm rounded-lg p-3 lg:max-w-md",
           isUser
             ? "bg-primary text-primary-foreground"
-            : "bg-muted text-muted-foreground"
+            : "bg-muted"
         )}
       >
-        <p className="whitespace-pre-wrap">
+        <p className={cn("whitespace-pre-wrap", isUser ? "" : "text-muted-foreground")}>
           {words.map((word, index) => (
             <WordTranslator key={index} word={word} />
           ))}
         </p>
+
+        {message.translation && !isUser && (
+            <div className="mt-2 border-t border-muted-foreground/20 pt-2 text-sm text-muted-foreground/80 italic">
+                {message.translation}
+            </div>
+        )}
         
         {message.feedback && (
           <div className="mt-2 border-t border-muted-foreground/20 pt-2 text-sm">

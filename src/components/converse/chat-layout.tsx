@@ -23,6 +23,7 @@ export function ChatLayout() {
       id: "1",
       role: "assistant",
       content: "Hello! How can I help you today?",
+      translation: "Olá! Como posso te ajudar hoje?",
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
@@ -56,6 +57,7 @@ export function ChatLayout() {
           id: crypto.randomUUID(),
           role: "assistant",
           content: aiResponse.response,
+          translation: aiResponse.translation,
         };
         setMessages((prev) => [...prev, assistantMessage]);
       } catch (error) {
@@ -64,6 +66,7 @@ export function ChatLayout() {
           id: crypto.randomUUID(),
           role: "assistant",
           content: "Sorry, I encountered an error. Please try again.",
+          translation: "Desculpe, encontrei um erro. Por favor, tente novamente.",
         };
         setMessages((prev) => [...prev, errorMessage]);
       } finally {

@@ -21,6 +21,7 @@ export type GenerateContextualResponseInput = z.infer<
 
 const GenerateContextualResponseOutputSchema = z.object({
   response: z.string().describe('The contextual response from the AI.'),
+  translation: z.string().describe('The Portuguese translation of the response.'),
 });
 export type GenerateContextualResponseOutput = z.infer<
   typeof GenerateContextualResponseOutputSchema
@@ -37,6 +38,7 @@ const prompt = ai.definePrompt({
   input: {schema: GenerateContextualResponseInputSchema},
   output: {schema: GenerateContextualResponseOutputSchema},
   prompt: `You are a helpful AI assistant. Respond to the user based on the current input and the conversation history.
+Your response must be in English. You must also provide a translation of your response in Portuguese.
 
 Conversation History:
 {{conversationHistory}}
