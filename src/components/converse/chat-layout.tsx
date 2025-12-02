@@ -46,7 +46,9 @@ export function ChatLayout() {
         console.log("User is logged in, should load from cloud.");
         setConversations({}); // Clear local conversations
         setCurrentConversationId(null);
-        handleNewChat(); // Start a new chat for logged-in user
+        if (Object.keys(conversations).length === 0) {
+            handleNewChat();
+        }
     } else {
         const savedConversations = localStorage.getItem("conversations");
         if (savedConversations) {
