@@ -16,19 +16,19 @@ export function ChatMessages({
   isLoading,
   onGetFeedback,
 }: ChatMessagesProps) {
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTo({
-        top: scrollAreaRef.current.scrollHeight,
+    if (viewportRef.current) {
+      viewportRef.current.scrollTo({
+        top: viewportRef.current.scrollHeight,
         behavior: "smooth",
       });
     }
   }, [messages, isLoading]);
 
   return (
-    <ScrollArea className="flex-1" ref={scrollAreaRef}>
+    <ScrollArea className="flex-1" viewportRef={viewportRef}>
       <div className="p-4 sm:p-6">
         <div className="flex flex-col gap-4">
           {messages.map((message) => (
