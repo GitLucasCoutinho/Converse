@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { onAuthStateChanged, GoogleAuthProvider, signInWithRedirect, signOut, type User } from "firebase/auth";
-import { auth } from "@/firebase"; // Directly import the stable auth instance
+import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, type User } from "firebase/auth";
+import { auth } from "@/firebase";
 
 export function useUser() {
   const [user, setUser] = useState<User | null>(null);
@@ -20,8 +20,7 @@ export function useUser() {
   const login = useCallback(async () => {
     const provider = new GoogleAuthProvider();
     try {
-      // Use signInWithRedirect instead of signInWithPopup
-      await signInWithRedirect(auth, provider);
+      await signInWithPopup(auth, provider);
     } catch (error) {
       console.error("Error signing in with Google", error);
     }

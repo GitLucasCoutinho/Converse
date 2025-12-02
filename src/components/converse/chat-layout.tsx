@@ -38,49 +38,57 @@ export function ChatLayout() {
   
   const isLoggedIn = !!user;
 
-  // Load from localStorage on initial mount
+  // This useEffect handles the logic for loading data when the user's auth state changes.
   useEffect(() => {
-    const savedConversations = localStorage.getItem("conversations");
-    if (savedConversations) {
-      try {
-        const parsedConversations = JSON.parse(savedConversations);
-        setConversations(parsedConversations);
-        const conversationIds = Object.keys(parsedConversations);
-        if (conversationIds.length > 0) {
-          const sortedIds = conversationIds.sort((a, b) => Number(b) - Number(a));
-          setCurrentConversationId(sortedIds[0]);
-        } else {
-          handleNewChat();
-        }
-      } catch (error) {
-        console.error("Failed to parse conversations from localStorage", error);
-        handleNewChat();
-      }
-    } else {
-      handleNewChat();
+    // Do nothing while the authentication state is being determined.
+    if (isUserLoading) {
+      return;
     }
-     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // React to login state changes
-  useEffect(() => {
-    if (isUserLoading) return; // Do nothing while auth state is being determined
 
     if (isLoggedIn) {
-      // User is logged in. Clear local state and prepare for cloud sync.
-      localStorage.removeItem("conversations");
-      console.log("User is logged in. Clearing local data and preparing for cloud sync.");
-      handleNewChat(); // Start with a fresh chat
+      // User is logged in. Clear local data and prepare for cloud sync.
+      // For now, we just start a new chat.
+      console.log("User is logged in. Clearing local data.");
+      setConversations({}); // Clear any existing local conversations
+      handleNewChat();
+    } else {
+      // User is not logged in. Load data from localStorage.
+      console.log("User is not logged in. Loading from localStorage.");
+      const savedConversations = localStorage.getItem("conversations");
+      if (savedConversations) {
+        try {
+          const parsedConversations = JSON.parse(savedConversations);
+          setConversations(parsedConversations);
+          const conversationIds = Object.keys(parsedConversations);
+          if (conversationIds.length > 0) {
+            const sortedIds = conversationIds.sort((a, b) => Number(b) - Number(a));
+            setCurrentConversationId(sortedIds[0]);
+          } else {
+            handleNewChat();
+          }
+        } catch (error) {
+          console.error("Failed to parse conversations from localStorage", error);
+          handleNewChat();
+        }
+      } else {
+        handleNewChat();
+      }
     }
+     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoggedIn, isUserLoading]);
 
 
-  // Save to localStorage when conversations change and user is not logged in
+  // This useEffect saves conversations to localStorage when they change, but only if the user is logged out.
   useEffect(() => {
-    if (!isLoggedIn && !isUserLoading && Object.keys(conversations).length > 0) {
-      localStorage.setItem("conversations", JSON.stringify(conversations));
+    if (!isLoggedIn && Object.keys(conversations).length > 0) {
+      // Don't save the initial "New Chat" if it only has the first message
+      const currentConvo = currentConversationId ? conversations[currentConversationId] : null;
+      if (currentConvo && currentConvo.messages.length > 1) {
+        localStorage.setItem("conversations", JSON.stringify(conversations));
+      }
     }
-  }, [conversations, isLoggedIn, isUserLoading]);
+  }, [conversations, isLoggedIn, currentConversationId]);
+
 
   const handleNewChat = () => {
     const newId = Date.now().toString();
@@ -116,7 +124,7 @@ export function ChatLayout() {
   };
 
   const handleImportConversations = (importedConversations: Record<string, Conversation>) => {
-    if (isLoggedIn) return; // Não deve ser possível via UI, mas como salvaguarda.
+    if (isLoggedIn) return;
     setConversations(importedConversations);
     const conversationIds = Object.keys(importedConversations);
     if (conversationIds.length > 0) {
