@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, type User } from "firebase/auth";
-import { useFirebase } from "@/firebase/client-provider";
+import { auth } from "@/firebase"; // Directly import the stable auth instance
 
 export function useUser() {
-  const { auth } = useFirebase();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -14,25 +13,27 @@ export function useUser() {
       setUser(currentUser);
       setIsLoading(false);
     });
+    // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [auth]);
+  }, []);
 
-  const login = async () => {
+  const login = useCallback(async () => {
     const provider = new GoogleAuthProvider();
     try {
+      // Use the stable auth instance directly
       await signInWithPopup(auth, provider);
     } catch (error) {
       console.error("Error signing in with Google", error);
     }
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await signOut(auth);
     } catch (error) {
       console.error("Error signing out", error);
     }
-  };
+  }, []);
 
   return { user, isLoading, login, logout };
 }

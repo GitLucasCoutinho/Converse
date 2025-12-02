@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useContext, ReactNode } from "react";
-import { app, auth } from "@/firebase";
+import { createContext, useContext, ReactNode, useMemo } from "react";
+import { app, auth } from "@/firebase"; // Import singleton instances
 import type { FirebaseApp } from "firebase/app";
 import type { Auth } from "firebase/auth";
 
@@ -13,7 +13,9 @@ type FirebaseContextValue = {
 const FirebaseContext = createContext<FirebaseContextValue | null>(null);
 
 export function FirebaseProvider({ children }: { children: ReactNode }) {
-  const value = { app, auth };
+  // The value is memoized to prevent unnecessary re-renders of consumers.
+  // app and auth are stable singletons, so this only runs once.
+  const value = useMemo(() => ({ app, auth }), []);
 
   return (
     <FirebaseContext.Provider value={value}>
