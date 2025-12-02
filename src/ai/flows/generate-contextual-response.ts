@@ -39,6 +39,7 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateContextualResponseOutputSchema},
   prompt: `You are a helpful AI assistant. Respond to the user based on the current input and the conversation history.
 Your response must be in English. You must also provide a translation of your response in Portuguese.
+When providing a list, please format each item on a new line.
 
 Conversation History:
 {{conversationHistory}}
