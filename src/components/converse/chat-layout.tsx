@@ -33,6 +33,7 @@ export function ChatLayout() {
   const [isLoading, setIsLoading] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Simulated login state
 
   useEffect(() => {
     const savedConversations = localStorage.getItem("conversations");
@@ -58,13 +59,14 @@ export function ChatLayout() {
   }, []);
 
   useEffect(() => {
+    if (isLoggedIn) return; // Don't save to local storage if logged in
     if (Object.keys(conversations).length > 0) {
       localStorage.setItem("conversations", JSON.stringify(conversations));
     } else {
       // If there are no conversations, clear localStorage
       localStorage.removeItem("conversations");
     }
-  }, [conversations]);
+  }, [conversations, isLoggedIn]);
 
   const handleNewChat = () => {
     const newId = Date.now().toString();
@@ -260,6 +262,10 @@ export function ChatLayout() {
     }
   }, [currentConversationId, conversations]);
 
+  const handleLogin = () => setIsLoggedIn(true);
+  const handleLogout = () => setIsLoggedIn(false);
+
+
   return (
     <div className="flex h-full w-full gap-4">
       <ChatHistory 
@@ -269,9 +275,15 @@ export function ChatLayout() {
         onNewChat={handleNewChat}
         onDeleteChat={handleDeleteChat}
         onImport={handleImportConversations}
+        isLoggedIn={isLoggedIn}
       />
       <div className="flex h-full w-full flex-col flex-1">
-        <Header onSummarize={handleGetSummary} />
+        <Header 
+            onSummarize={handleGetSummary}
+            isLoggedIn={isLoggedIn}
+            onLogin={handleLogin}
+            onLogout={handleLogout}
+        />
         <Card className="flex flex-1 flex-col overflow-hidden">
           <ChatMessages
             messages={currentMessages}
@@ -297,3 +309,5 @@ export function ChatLayout() {
     </div>
   );
 }
+
+    

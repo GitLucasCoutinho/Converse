@@ -1,16 +1,19 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ConverseIcon } from "@/components/converse/icons";
-import { BotMessageSquare } from "lucide-react";
+import { GoogleIcon, ConverseIcon } from "@/components/converse/icons";
+import { BotMessageSquare, LogOut } from "lucide-react";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ClientOnly } from "../client-only";
 
 type HeaderProps = {
   onSummarize: () => void;
+  isLoggedIn: boolean;
+  onLogin: () => void;
+  onLogout: () => void;
 };
 
-export function Header({ onSummarize }: HeaderProps) {
+export function Header({ onSummarize, isLoggedIn, onLogin, onLogout }: HeaderProps) {
   return (
     <header className="mb-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -25,7 +28,20 @@ export function Header({ onSummarize }: HeaderProps) {
         <ClientOnly>
           <ThemeSwitcher />
         </ClientOnly>
+        {isLoggedIn ? (
+          <Button variant="outline" onClick={onLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            Logout
+          </Button>
+        ) : (
+          <Button variant="outline" onClick={onLogin}>
+            <GoogleIcon className="mr-2 h-4 w-4" />
+            Login with Google
+          </Button>
+        )}
       </div>
     </header>
   );
 }
+
+    

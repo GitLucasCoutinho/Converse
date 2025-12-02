@@ -5,12 +5,13 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Conversation } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { MessageSquarePlus, Trash2, Download, Upload } from "lucide-react";
+import { MessageSquarePlus, Trash2, Download, Upload, Save, FolderDown } from "lucide-react";
 import React, { useRef } from "react";
 
 type ChatHistoryProps = {
   conversations: Conversation[];
   currentConversationId: string | null;
+  isLoggedIn: boolean;
   onSelectChat: (id: string) => void;
   onNewChat: () => void;
   onDeleteChat: (id: string) => void;
@@ -20,6 +21,7 @@ type ChatHistoryProps = {
 export function ChatHistory({
   conversations,
   currentConversationId,
+  isLoggedIn,
   onSelectChat,
   onNewChat,
   onDeleteChat,
@@ -84,19 +86,32 @@ export function ChatHistory({
         <Button variant="outline" onClick={onNewChat} className="col-span-1">
           <MessageSquarePlus />
         </Button>
-        <Button variant="outline" onClick={handleImportClick} className="col-span-1">
-          <Upload />
-        </Button>
-        <input
-          type="file"
-          ref={fileInputRef}
-          className="hidden"
-          accept="application/json"
-          onChange={handleFileChange}
-        />
-        <Button variant="outline" onClick={handleExport} className="col-span-1">
-          <Download />
-        </Button>
+        {isLoggedIn ? (
+          <>
+            <Button variant="outline" className="col-span-1">
+                <FolderDown />
+            </Button>
+            <Button variant="outline" className="col-span-1">
+                <Save />
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button variant="outline" onClick={handleImportClick} className="col-span-1">
+              <Upload />
+            </Button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="application/json"
+              onChange={handleFileChange}
+            />
+            <Button variant="outline" onClick={handleExport} className="col-span-1">
+              <Download />
+            </Button>
+          </>
+        )}
       </div>
       <ScrollArea className="flex-1">
         <div className="flex flex-col gap-2 pr-2">
@@ -125,3 +140,5 @@ export function ChatHistory({
     </Card>
   );
 }
+
+    
