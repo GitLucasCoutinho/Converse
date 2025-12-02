@@ -33,6 +33,12 @@ body {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+
+    --default-primary: 262 52% 47%;
+    --green-primary: 145 35% 47%;
+    --blue-primary: 210 55% 47%;
+    --pink-primary: 340 60% 60%;
+    --red-primary: 0 60% 50%;
   }
   
   .light-green {

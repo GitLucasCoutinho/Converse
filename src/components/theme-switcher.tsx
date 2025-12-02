@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Moon, Sun, Palette } from "lucide-react"
+import { Moon, Palette, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 
 import { Button } from "@/components/ui/button"
@@ -9,11 +9,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
+  DropdownMenuPortal,
   DropdownMenuSub,
+  DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-  DropdownMenuSubContent
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
 const colorThemes = [
@@ -25,27 +25,7 @@ const colorThemes = [
 ];
 
 export function ThemeSwitcher() {
-  const { setTheme, theme, resolvedTheme } = useTheme()
-
-  const handleColorChange = (color: string) => {
-    const currentMode = resolvedTheme?.startsWith('dark') ? 'dark' : 'light';
-    if (color === 'default') {
-        setTheme(currentMode);
-    } else {
-        setTheme(`${currentMode}-${color}`);
-    }
-  };
-  
-  const handleModeChange = (mode: 'light' | 'dark') => {
-    const currentTheme = theme || 'dark';
-    const color = currentTheme.split('-')[1];
-
-    if (color && color !== 'light' && color !== 'dark' && color !== 'default') {
-      setTheme(`${mode}-${color}`);
-    } else {
-      setTheme(mode);
-    }
-  };
+  const { setTheme } = useTheme();
 
   return (
     <DropdownMenu>
@@ -56,30 +36,31 @@ export function ThemeSwitcher() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuSub>
+        {colorThemes.map((colorTheme) => (
+          <DropdownMenuSub key={colorTheme.value}>
             <DropdownMenuSubTrigger>
-                <Palette className="mr-2 h-4 w-4" />
-                <span>Color Theme</span>
+              <span
+                className="mr-2 h-4 w-4 rounded-full"
+                style={{ 
+                    backgroundColor: `hsl(var(--${colorTheme.value === 'default' ? 'primary' : `${colorTheme.value}-primary`}))`
+                }}
+              />
+              <span>{colorTheme.name}</span>
             </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
-                {colorThemes.map((t) => (
-                    <DropdownMenuItem key={t.value} onClick={() => handleColorChange(t.value)}>
-                        {t.name}
-                    </DropdownMenuItem>
-                ))}
-            </DropdownMenuSubContent>
-        </DropdownMenuSub>
-
-        <DropdownMenuSeparator />
-
-        <DropdownMenuItem onClick={() => handleModeChange("light")}>
-          <Sun className="mr-2 h-4 w-4" />
-          <span>Light</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleModeChange("dark")}>
-          <Moon className="mr-2 h-4 w-4" />
-          <span>Dark</span>
-        </DropdownMenuItem>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent>
+                <DropdownMenuItem onClick={() => setTheme(colorTheme.value === 'default' ? 'light' : `light-${colorTheme.value}`)}>
+                  <Sun className="mr-2 h-4 w-4" />
+                  <span>Light</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme(colorTheme.value === 'default' ? 'dark' : `dark-${colorTheme.value}`)}>
+                  <Moon className="mr-2 h-4 w-4" />
+                  <span>Dark</span>
+                </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   )
