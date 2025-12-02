@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Moon, Palette, Sun } from "lucide-react"
+import { Check, Circle, Moon, Palette } from "lucide-react"
 import { useTheme } from "next-themes"
 
 import { Button } from "@/components/ui/button"
@@ -22,7 +22,7 @@ const colorThemes = [
 ];
 
 export function ThemeSwitcher() {
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   return (
     <DropdownMenu>
@@ -36,18 +36,23 @@ export function ThemeSwitcher() {
         {colorThemes.map((colorTheme) => (
           <DropdownMenuItem key={colorTheme.value} onClick={() => setTheme(colorTheme.value)}>
             <div
-              className="mr-2 h-4 w-4 rounded-full border"
-              style={{ 
-                  backgroundColor: `hsl(var(--${colorTheme.value === 'light' ? 'primary' : `${colorTheme.value.replace('light-','')}-primary`}))`
+              className="mr-2 h-4 w-4 rounded-full border flex items-center justify-center"
+              style={{
+                  backgroundColor: theme === colorTheme.value ? `hsl(var(--primary))` : 'transparent'
               }}
-            />
+            >
+                {theme === colorTheme.value && <Circle className="h-2 w-2 fill-current text-primary-foreground" />}
+            </div>
             <span>{colorTheme.name}</span>
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => setTheme('dark')}>
-          <Moon className="mr-2 h-4 w-4" />
+            <div className="mr-2 h-4 w-4 flex items-center justify-center">
+                <Moon className="h-4 w-4" />
+            </div>
           <span>Dark Mode</span>
+          {theme === 'dark' && <Check className="ml-auto h-4 w-4" />}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
