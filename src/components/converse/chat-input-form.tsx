@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { useForm, useFormState, useWatch } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,16 +43,16 @@ export function ChatInputForm({ onSendMessage, isLoading }: ChatInputFormProps) 
 
       recognition.onresult = (event) => {
         let finalTranscript = '';
-        let interimTranscript = '';
-
-        for (let i = 0; i < event.results.length; ++i) {
+        
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
           if (event.results[i].isFinal) {
             finalTranscript += event.results[i][0].transcript;
-          } else {
-            interimTranscript += event.results[i][0].transcript;
           }
         }
-        form.setValue("message", finalTranscript + interimTranscript, { shouldDirty: true });
+
+        if (finalTranscript) {
+          form.setValue("message", form.getValues("message") + finalTranscript);
+        }
       };
 
       recognition.onend = () => {
@@ -140,7 +140,7 @@ export function ChatInputForm({ onSendMessage, isLoading }: ChatInputFormProps) 
           <Button
             type="submit"
             size="icon"
-            className="shrink-0"
+            className="shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 dark:bg-accent dark:text-accent-foreground dark:hover:bg-accent/90"
             disabled={isLoading || !messageValue}
             aria-label="Send message"
           >
