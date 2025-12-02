@@ -5,13 +5,13 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Conversation } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { MessageSquarePlus, Trash2, Download, Upload, Save, FolderDown } from "lucide-react";
+import { MessageSquarePlus, Trash2, Download, Upload, Save, FolderDown, Loader } from "lucide-react";
 import React, { useRef } from "react";
+import { useUser } from "@/hooks/use-user";
 
 type ChatHistoryProps = {
   conversations: Conversation[];
   currentConversationId: string | null;
-  isLoggedIn: boolean;
   onSelectChat: (id: string) => void;
   onNewChat: () => void;
   onDeleteChat: (id: string) => void;
@@ -21,13 +21,14 @@ type ChatHistoryProps = {
 export function ChatHistory({
   conversations,
   currentConversationId,
-  isLoggedIn,
   onSelectChat,
   onNewChat,
   onDeleteChat,
   onImport,
-}: ChatHistoryProps) {
+}: Omit<ChatHistoryProps, 'isLoggedIn'>) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user, isLoading } = useUser();
+  const isLoggedIn = !!user;
 
   const handleDelete = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
@@ -86,12 +87,16 @@ export function ChatHistory({
         <Button variant="outline" onClick={onNewChat} className="col-span-1">
           <MessageSquarePlus />
         </Button>
-        {isLoggedIn ? (
+        {isLoading ? (
+            <div className="col-span-2 flex items-center justify-center">
+                <Loader className="animate-spin" />
+            </div>
+        ) : isLoggedIn ? (
           <>
-            <Button variant="outline" className="col-span-1">
+            <Button variant="outline" className="col-span-1" disabled>
                 <FolderDown />
             </Button>
-            <Button variant="outline" className="col-span-1">
+            <Button variant="outline" className="col-span-1" disabled>
                 <Save />
             </Button>
           </>
@@ -140,5 +145,3 @@ export function ChatHistory({
     </Card>
   );
 }
-
-    

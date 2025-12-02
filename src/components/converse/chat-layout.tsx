@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { Message, Conversation } from "@/lib/types";
 import { ChatHistory } from "./chat-history";
+import { useUser } from "@/hooks/use-user";
 
 
 const initialMessage: Message = {
@@ -28,14 +29,25 @@ const initialMessage: Message = {
 
 
 export function ChatLayout() {
+  const { user } = useUser();
   const [conversations, setConversations] = useState<Record<string, Conversation>>({});
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Simulated login state
+  
+  const isLoggedIn = !!user;
 
   useEffect(() => {
+    if (isLoggedIn) {
+        // TODO: Load from cloud
+        console.log("User is logged in, should load from cloud.");
+        setConversations({});
+        setCurrentConversationId(null);
+        handleNewChat(); // Start a new chat for logged-in user
+        return;
+    }
+
     const savedConversations = localStorage.getItem("conversations");
     if (savedConversations) {
       try {
@@ -56,10 +68,14 @@ export function ChatLayout() {
     } else {
       handleNewChat();
     }
-  }, []);
+  }, [isLoggedIn]);
 
   useEffect(() => {
-    if (isLoggedIn) return; // Don't save to local storage if logged in
+    if (isLoggedIn) {
+        // Don't save to local storage if logged in, clear it
+        localStorage.removeItem("conversations");
+        return;
+    };
     if (Object.keys(conversations).length > 0) {
       localStorage.setItem("conversations", JSON.stringify(conversations));
     } else {
@@ -262,8 +278,14 @@ export function ChatLayout() {
     }
   }, [currentConversationId, conversations]);
 
-  const handleLogin = () => setIsLoggedIn(true);
-  const handleLogout = () => setIsLoggedIn(false);
+  const handleLogin = () => {
+    // This is now handled by the auth state change
+    console.log("Logged in!");
+  };
+  const handleLogout = () => {
+    // This is now handled by the auth state change
+    console.log("Logged out!");
+  };
 
 
   return (
@@ -280,7 +302,6 @@ export function ChatLayout() {
       <div className="flex h-full w-full flex-col flex-1">
         <Header 
             onSummarize={handleGetSummary}
-            isLoggedIn={isLoggedIn}
             onLogin={handleLogin}
             onLogout={handleLogout}
         />
@@ -309,5 +330,3 @@ export function ChatLayout() {
     </div>
   );
 }
-
-    

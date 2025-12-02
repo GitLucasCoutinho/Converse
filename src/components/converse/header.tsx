@@ -5,6 +5,9 @@ import { GoogleIcon, ConverseIcon } from "@/components/converse/icons";
 import { BotMessageSquare, LogOut } from "lucide-react";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ClientOnly } from "../client-only";
+import { useFirebase } from "@/firebase/client-provider";
+import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { useUser } from "@/hooks/use-user";
 
 type HeaderProps = {
   onSummarize: () => void;
@@ -13,7 +16,31 @@ type HeaderProps = {
   onLogout: () => void;
 };
 
-export function Header({ onSummarize, isLoggedIn, onLogin, onLogout }: HeaderProps) {
+export function Header({ onSummarize, onLogin, onLogout }: Omit<HeaderProps, 'isLoggedIn'>) {
+    const { auth } = useFirebase();
+    const { user, isLoading } = useUser();
+
+    const handleLogin = async () => {
+        if (!auth) return;
+        const provider = new GoogleAuthProvider();
+        try {
+            await signInWithPopup(auth, provider);
+            onLogin();
+        } catch (error) {
+            console.error("Error signing in with Google", error);
+        }
+    };
+
+    const handleLogout = async () => {
+        if (!auth) return;
+        try {
+            await signOut(auth);
+            onLogout();
+        } catch (error) {
+            console.error("Error signing out", error);
+        }
+    };
+
   return (
     <header className="mb-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -28,12 +55,12 @@ export function Header({ onSummarize, isLoggedIn, onLogin, onLogout }: HeaderPro
         <ClientOnly>
           <ThemeSwitcher />
         </ClientOnly>
-        {isLoggedIn ? (
-          <Button variant="outline" size="icon" onClick={onLogout}>
+        {user ? (
+          <Button variant="outline" size="icon" onClick={handleLogout}>
             <LogOut className="h-5 w-5" />
           </Button>
         ) : (
-          <Button variant="outline" size="icon" onClick={onLogin}>
+          <Button variant="outline" size="icon" onClick={handleLogin} disabled={isLoading}>
             <GoogleIcon className="h-5 w-5" />
           </Button>
         )}
