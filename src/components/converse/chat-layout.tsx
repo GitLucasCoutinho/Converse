@@ -29,7 +29,7 @@ const initialMessage: Message = {
 
 
 export function ChatLayout() {
-  const { user } = useUser();
+  const { user, isLoading: isUserLoading } = useUser();
   const [conversations, setConversations] = useState<Record<string, Conversation>>({});
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -39,48 +39,49 @@ export function ChatLayout() {
   const isLoggedIn = !!user;
 
   useEffect(() => {
+    if (isUserLoading) return; // Wait until user status is resolved
+
     if (isLoggedIn) {
         // TODO: Load from cloud
         console.log("User is logged in, should load from cloud.");
-        setConversations({});
+        setConversations({}); // Clear local conversations
         setCurrentConversationId(null);
         handleNewChat(); // Start a new chat for logged-in user
-        return;
-    }
-
-    const savedConversations = localStorage.getItem("conversations");
-    if (savedConversations) {
-      try {
-        const parsedConversations = JSON.parse(savedConversations);
-        setConversations(parsedConversations);
-        const conversationIds = Object.keys(parsedConversations);
-        if (conversationIds.length > 0) {
-          // Sort by ID (timestamp) to get the most recent one
-          const sortedIds = conversationIds.sort((a, b) => Number(b) - Number(a));
-          setCurrentConversationId(sortedIds[0]);
+    } else {
+        const savedConversations = localStorage.getItem("conversations");
+        if (savedConversations) {
+          try {
+            const parsedConversations = JSON.parse(savedConversations);
+            setConversations(parsedConversations);
+            const conversationIds = Object.keys(parsedConversations);
+            if (conversationIds.length > 0) {
+              const sortedIds = conversationIds.sort((a, b) => Number(b) - Number(a));
+              setCurrentConversationId(sortedIds[0]);
+            } else {
+              handleNewChat();
+            }
+          } catch (error) {
+            console.error("Failed to parse conversations from localStorage", error);
+            handleNewChat();
+          }
         } else {
           handleNewChat();
         }
-      } catch (error) {
-        console.error("Failed to parse conversations from localStorage", error);
-        handleNewChat();
-      }
-    } else {
-      handleNewChat();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoggedIn]);
+  }, [isLoggedIn, isUserLoading]);
 
   useEffect(() => {
     if (isLoggedIn) {
-        // Don't save to local storage if logged in, clear it
+        // Don't save to local storage if logged in, and clear it just in case.
         localStorage.removeItem("conversations");
         return;
     };
+
+    // Save to localStorage only if not logged in and there are conversations.
     if (Object.keys(conversations).length > 0) {
       localStorage.setItem("conversations", JSON.stringify(conversations));
     } else {
-      // If there are no conversations, clear localStorage
       localStorage.removeItem("conversations");
     }
   }, [conversations, isLoggedIn]);
@@ -100,22 +101,14 @@ export function ChatLayout() {
     setConversations((prev) => {
       const newConversations = { ...prev };
       delete newConversations[conversationId];
-      // Check if we are deleting the current chat
+      
       if (currentConversationId === conversationId) {
         const remainingIds = Object.keys(newConversations);
         if (remainingIds.length > 0) {
           const sortedIds = remainingIds.sort((a, b) => Number(b) - Number(a));
           setCurrentConversationId(sortedIds[0]);
         } else {
-          // If no chats are left, create a new one
-          const newId = Date.now().toString();
-          const newConversation: Conversation = {
-            id: newId,
-            title: "New Chat",
-            messages: [initialMessage],
-          };
-          newConversations[newId] = newConversation;
-          setCurrentConversationId(newId);
+          handleNewChat();
         }
       }
       return newConversations;
@@ -127,6 +120,7 @@ export function ChatLayout() {
   };
 
   const handleImportConversations = (importedConversations: Record<string, Conversation>) => {
+    if (isLoggedIn) return; // Should not be possible via UI, but as a safeguard.
     setConversations(importedConversations);
     const conversationIds = Object.keys(importedConversations);
     if (conversationIds.length > 0) {

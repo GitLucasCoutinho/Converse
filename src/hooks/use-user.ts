@@ -10,12 +10,18 @@ export function useUser() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // No need to check for auth existence, provider ensures it's there
+    if (!auth) {
+      // Auth service might not be available on initial render.
+      // The provider will re-render when it is.
+      return;
+    }
+    
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setIsLoading(false);
     });
 
+    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [auth]);
 

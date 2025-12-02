@@ -2,13 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { GoogleIcon, ConverseIcon } from "@/components/converse/icons";
-import { BotMessageSquare, LogOut } from "lucide-react";
+import { BotMessageSquare, LogOut, Loader } from "lucide-react";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ClientOnly } from "../client-only";
 import { useFirebase } from "@/firebase/client-provider";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { useUser } from "@/hooks/use-user";
-import { Loader } from "lucide-react";
 
 type HeaderProps = {
   onSummarize: () => void;
@@ -19,6 +18,7 @@ export function Header({ onSummarize }: HeaderProps) {
     const { user, isLoading } = useUser();
 
     const handleLogin = async () => {
+        if (!auth) return;
         const provider = new GoogleAuthProvider();
         try {
             await signInWithPopup(auth, provider);
@@ -28,6 +28,7 @@ export function Header({ onSummarize }: HeaderProps) {
     };
 
     const handleLogout = async () => {
+        if (!auth) return;
         try {
             await signOut(auth);
         } catch (error) {
