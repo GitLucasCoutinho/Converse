@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ConverseIcon } from "@/components/converse/icons";
 import { BotMessageSquare } from "lucide-react";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { ClientOnly } from "../client-only";
 
 type HeaderProps = {
   onSummarize: () => void;
@@ -21,7 +22,9 @@ export function Header({ onSummarize }: HeaderProps) {
           <BotMessageSquare className="mr-2 h-4 w-4" />
           Summarize
         </Button>
-        <ThemeSwitcher />
+        <ClientOnly>
+          <ThemeSwitcher />
+        </ClientOnly>
       </div>
     </header>
   );
