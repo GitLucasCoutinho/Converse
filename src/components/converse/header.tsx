@@ -5,8 +5,6 @@ import { GoogleIcon, ConverseIcon } from "@/components/converse/icons";
 import { BotMessageSquare, LogOut, Loader } from "lucide-react";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ClientOnly } from "../client-only";
-import { useFirebase } from "@/firebase/client-provider";
-import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { useUser } from "@/hooks/use-user";
 
 type HeaderProps = {
@@ -14,23 +12,19 @@ type HeaderProps = {
 };
 
 export function Header({ onSummarize }: HeaderProps) {
-    const { auth } = useFirebase();
-    const { user, isLoading } = useUser();
+    const { user, isLoading, login, logout } = useUser();
 
     const handleLogin = async () => {
-        if (!auth) return;
-        const provider = new GoogleAuthProvider();
         try {
-            await signInWithPopup(auth, provider);
+            await login();
         } catch (error) {
             console.error("Error signing in with Google", error);
         }
     };
 
     const handleLogout = async () => {
-        if (!auth) return;
         try {
-            await signOut(auth);
+            await logout();
         } catch (error) {
             console.error("Error signing out", error);
         }

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { onAuthStateChanged, type User } from 'firebase/auth';
+import { useEffect, useState, useCallback } from 'react';
+import { onAuthStateChanged, type User, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { useFirebase } from '@/firebase/client-provider';
 
 export function useUser() {
@@ -11,8 +11,7 @@ export function useUser() {
 
   useEffect(() => {
     if (!auth) {
-      // Auth service might not be available on initial render.
-      // The provider will re-render when it is.
+      setIsLoading(false);
       return;
     }
     
@@ -21,9 +20,20 @@ export function useUser() {
       setIsLoading(false);
     });
 
-    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [auth]);
 
-  return { user, isLoading };
+  const login = useCallback(async () => {
+    if (!auth) return;
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+  }, [auth]);
+
+  const logout = useCallback(async () => {
+    if (!auth) return;
+    await signOut(auth);
+  }, [auth]);
+
+
+  return { user, isLoading, login, logout };
 }
