@@ -29,9 +29,8 @@ export function Header({ onSummarize, isLoggedIn, onLogin, onLogout }: HeaderPro
           <ThemeSwitcher />
         </ClientOnly>
         {isLoggedIn ? (
-          <Button variant="outline" onClick={onLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
+          <Button variant="outline" size="icon" onClick={onLogout}>
+            <LogOut className="h-5 w-5" />
           </Button>
         ) : (
           <Button variant="outline" size="icon" onClick={onLogin}>
