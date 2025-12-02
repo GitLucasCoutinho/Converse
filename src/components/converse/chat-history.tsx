@@ -7,7 +7,6 @@ import type { Conversation } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { MessageSquarePlus, Trash2, Download, Upload, Save, FolderDown, Loader } from "lucide-react";
 import React, { useRef } from "react";
-import { useUser } from "@/hooks/use-user";
 
 type ChatHistoryProps = {
   conversations: Conversation[];
@@ -16,6 +15,8 @@ type ChatHistoryProps = {
   onNewChat: () => void;
   onDeleteChat: (id: string) => void;
   onImport: (conversations: Record<string, Conversation>) => void;
+  isLoggedIn: boolean;
+  isLoading: boolean;
 };
 
 export function ChatHistory({
@@ -25,10 +26,10 @@ export function ChatHistory({
   onNewChat,
   onDeleteChat,
   onImport,
+  isLoggedIn,
+  isLoading,
 }: ChatHistoryProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { user, isLoading } = useUser();
-  const isLoggedIn = !!user;
 
   const handleDelete = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();

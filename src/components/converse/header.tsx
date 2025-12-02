@@ -1,22 +1,35 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { GoogleIcon, ConverseIcon } from "@/components/converse/icons";
 import { BotMessageSquare, LogOut, Loader } from "lucide-react";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ClientOnly } from "../client-only";
-import { useUser } from "@/hooks/use-user";
+import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, type User } from "firebase/auth";
+import { auth } from "@/firebase";
+
 
 type HeaderProps = {
   onSummarize: () => void;
 };
 
 export function Header({ onSummarize }: HeaderProps) {
-    const { user, isLoading, login, logout } = useUser();
+    const [user, setUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+          setUser(currentUser);
+          setIsLoading(false);
+        });
+        return () => unsubscribe();
+      }, []);
 
     const handleLogin = async () => {
+        const provider = new GoogleAuthProvider();
         try {
-            await login();
+            await signInWithPopup(auth, provider);
         } catch (error) {
             console.error("Error signing in with Google", error);
         }
@@ -24,7 +37,7 @@ export function Header({ onSummarize }: HeaderProps) {
 
     const handleLogout = async () => {
         try {
-            await logout();
+            await signOut(auth);
         } catch (error) {
             console.error("Error signing out", error);
         }

@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { Message, Conversation } from "@/lib/types";
 import { ChatHistory } from "./chat-history";
-import { useUser } from "@/hooks/use-user";
+import { onAuthStateChanged, type User } from 'firebase/auth';
+import { auth } from '@/firebase';
 
 
 const initialMessage: Message = {
@@ -29,7 +30,8 @@ const initialMessage: Message = {
 
 
 export function ChatLayout() {
-  const { user, isLoading: isUserLoading } = useUser();
+  const [user, setUser] = useState<User | null>(null);
+  const [isUserLoading, setIsUserLoading] = useState(true);
   const [conversations, setConversations] = useState<Record<string, Conversation>>({});
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,6 +39,14 @@ export function ChatLayout() {
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
   
   const isLoggedIn = !!user;
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        setUser(currentUser);
+        setIsUserLoading(false);
+      });
+      return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (isUserLoading) return; // Wait until user status is resolved
@@ -293,6 +303,8 @@ export function ChatLayout() {
         onNewChat={handleNewChat}
         onDeleteChat={handleDeleteChat}
         onImport={handleImportConversations}
+        isLoggedIn={isLoggedIn}
+        isLoading={isUserLoading}
       />
       <div className="flex h-full w-full flex-col flex-1">
         <Header 

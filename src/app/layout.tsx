@@ -4,7 +4,6 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
-import { FirebaseProvider } from "@/firebase/client-provider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -26,18 +25,16 @@ export default function RootLayout({
           inter.variable
         )}
       >
-        <FirebaseProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light-green"
-            enableSystem={false}
-            disableTransitionOnChange
-            storageKey="converse-theme-v2"
-          >
-            {children}
-            <Toaster />
-          </ThemeProvider>
-        </FirebaseProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light-green"
+          enableSystem={false}
+          disableTransitionOnChange
+          storageKey="converse-theme-v2"
+        >
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
