@@ -38,55 +38,47 @@ export function ChatLayout() {
   
   const isLoggedIn = !!user;
 
+  // Load from localStorage on initial mount
   useEffect(() => {
-    if (isUserLoading) {
-      return; // Aguarda a conclusão da verificação de autenticação
-    }
-
-    if (isLoggedIn) {
-      // O usuário está logado, lógica de nuvem (a ser implementada)
-      console.log("User is logged in, should load from cloud.");
-      setConversations({}); // Limpa as conversas locais por enquanto
-      setCurrentConversationId(null);
-      
-      // Se não houver conversas na nuvem, crie uma nova.
-      // Esta é uma simplificação.
-      if (Object.keys(conversations).length === 0) {
+    const savedConversations = localStorage.getItem("conversations");
+    if (savedConversations) {
+      try {
+        const parsedConversations = JSON.parse(savedConversations);
+        setConversations(parsedConversations);
+        const conversationIds = Object.keys(parsedConversations);
+        if (conversationIds.length > 0) {
+          const sortedIds = conversationIds.sort((a, b) => Number(b) - Number(a));
+          setCurrentConversationId(sortedIds[0]);
+        } else {
+          handleNewChat();
+        }
+      } catch (error) {
+        console.error("Failed to parse conversations from localStorage", error);
         handleNewChat();
       }
     } else {
-      // O usuário não está logado, carrega do localStorage
-      const savedConversations = localStorage.getItem("conversations");
-      if (savedConversations) {
-        try {
-          const parsedConversations = JSON.parse(savedConversations);
-          setConversations(parsedConversations);
-          const conversationIds = Object.keys(parsedConversations);
-          if (conversationIds.length > 0) {
-            const sortedIds = conversationIds.sort((a, b) => Number(b) - Number(a));
-            setCurrentConversationId(sortedIds[0]);
-          } else {
-            handleNewChat();
-          }
-        } catch (error) {
-          console.error("Failed to parse conversations from localStorage", error);
-          handleNewChat();
-        }
-      } else {
-        handleNewChat();
-      }
+      handleNewChat();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // React to login state changes
+  useEffect(() => {
+    if (isUserLoading) return; // Do nothing while auth state is being determined
+
+    if (isLoggedIn) {
+      // User is logged in. Clear local state and prepare for cloud sync.
+      localStorage.removeItem("conversations");
+      console.log("User is logged in. Clearing local data and preparing for cloud sync.");
+      handleNewChat(); // Start with a fresh chat
+    }
   }, [isLoggedIn, isUserLoading]);
 
+
+  // Save to localStorage when conversations change and user is not logged in
   useEffect(() => {
-    // Salva no localStorage somente se o usuário não estiver logado e a verificação estiver concluída
     if (!isLoggedIn && !isUserLoading && Object.keys(conversations).length > 0) {
       localStorage.setItem("conversations", JSON.stringify(conversations));
-    }
-    // Limpa o localStorage se o usuário fizer login
-    if (isLoggedIn) {
-      localStorage.removeItem("conversations");
     }
   }, [conversations, isLoggedIn, isUserLoading]);
 
