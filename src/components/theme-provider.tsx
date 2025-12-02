@@ -5,12 +5,12 @@ import { ThemeProvider as NextThemesProvider } from "next-themes"
 import { type ThemeProviderProps } from "next-themes/dist/types"
 
 const themes = [
-    'light', 'dark',
-    'light-default', 'dark-default',
-    'light-green', 'dark-green',
-    'light-blue', 'dark-blue',
-    'light-pink', 'dark-pink',
-    'light-red', 'dark-red'
+    'light', 
+    'dark',
+    'light-green',
+    'light-blue',
+    'light-pink',
+    'light-red'
 ];
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {

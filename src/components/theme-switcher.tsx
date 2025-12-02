@@ -9,19 +9,16 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuPortal,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
 const colorThemes = [
-    { name: 'Lilac', value: 'default' },
-    { name: 'Green', value: 'green' },
-    { name: 'Blue', value: 'blue' },
-    { name: 'Pink', value: 'pink' },
-    { name: 'Red', value: 'red' },
+    { name: 'Lilac', value: 'light' },
+    { name: 'Green', value: 'light-green' },
+    { name: 'Blue', value: 'light-blue' },
+    { name: 'Pink', value: 'light-pink' },
+    { name: 'Red', value: 'light-red' },
 ];
 
 export function ThemeSwitcher() {
@@ -37,30 +34,21 @@ export function ThemeSwitcher() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {colorThemes.map((colorTheme) => (
-          <DropdownMenuSub key={colorTheme.value}>
-            <DropdownMenuSubTrigger>
-              <span
-                className="mr-2 h-4 w-4 rounded-full"
-                style={{ 
-                    backgroundColor: `hsl(var(--${colorTheme.value === 'default' ? 'primary' : `${colorTheme.value}-primary`}))`
-                }}
-              />
-              <span>{colorTheme.name}</span>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent>
-                <DropdownMenuItem onClick={() => setTheme(colorTheme.value === 'default' ? 'light' : `light-${colorTheme.value}`)}>
-                  <Sun className="mr-2 h-4 w-4" />
-                  <span>Light</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme(colorTheme.value === 'default' ? 'dark' : `dark-${colorTheme.value}`)}>
-                  <Moon className="mr-2 h-4 w-4" />
-                  <span>Dark</span>
-                </DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
+          <DropdownMenuItem key={colorTheme.value} onClick={() => setTheme(colorTheme.value)}>
+            <div
+              className="mr-2 h-4 w-4 rounded-full border"
+              style={{ 
+                  backgroundColor: `hsl(var(--${colorTheme.value === 'light' ? 'primary' : `${colorTheme.value.replace('light-','')}-primary`}))`
+              }}
+            />
+            <span>{colorTheme.name}</span>
+          </DropdownMenuItem>
         ))}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => setTheme('dark')}>
+          <Moon className="mr-2 h-4 w-4" />
+          <span>Dark Mode</span>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
