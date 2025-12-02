@@ -6,13 +6,11 @@ import { cn } from "@/lib/utils";
 import { Bot, Loader, Sparkles, User, Volume2 } from "lucide-react";
 import type { Message } from "@/lib/types";
 import { WordTranslator } from "./word-translator";
-
-type ChatMessageProps = {
-  message: Message;
-  onGetFeedback: (messageId: string) => void;
-};
+import { useTheme } from "next-themes";
 
 export function ChatMessage({ message, onGetFeedback }: ChatMessageProps) {
+  const { theme } = useTheme();
+
   const handleTextToSpeech = () => {
     if ("speechSynthesis" in window && message.role === "assistant") {
       const utterance = new SpeechSynthesisUtterance(message.content);
@@ -22,6 +20,7 @@ export function ChatMessage({ message, onGetFeedback }: ChatMessageProps) {
   };
 
   const isUser = message.role === "user";
+  const isDarkMode = theme?.startsWith("dark");
 
   // Split message into words and punctuation
   const words = message.content.split(/(\s+|[.,!?;:"])/).filter(Boolean);
@@ -46,7 +45,7 @@ export function ChatMessage({ message, onGetFeedback }: ChatMessageProps) {
         className={cn(
           "max-w-sm rounded-lg p-3 lg:max-w-md",
           isUser
-            ? "bg-primary text-primary-foreground"
+            ? isDarkMode ? "bg-muted text-muted-foreground" : "bg-primary text-primary-foreground"
             : "bg-muted"
         )}
       >
@@ -67,7 +66,7 @@ export function ChatMessage({ message, onGetFeedback }: ChatMessageProps) {
              <p className="font-semibold mb-1">Feedback:</p>
              <p className="italic">{message.feedback}</p>
              {message.feedbackTranslation && (
-                <p className="italic text-primary-foreground/70 mt-1">{message.feedbackTranslation}</p>
+                <p className={cn("italic mt-1", isDarkMode ? "text-muted-foreground/70" : "text-primary-foreground/70")}>{message.feedbackTranslation}</p>
              )}
           </div>
         )}
@@ -88,7 +87,7 @@ export function ChatMessage({ message, onGetFeedback }: ChatMessageProps) {
             <Button
               size="icon"
               variant="ghost"
-              className="h-7 w-7 text-primary-foreground/80 hover:bg-primary/80"
+              className={cn("h-7 w-7", isDarkMode ? "text-muted-foreground/80 hover:bg-muted/80" : "text-primary-foreground/80 hover:bg-primary/80")}
               onClick={() => onGetFeedback(message.id)}
               disabled={message.isFeedbackLoading}
               aria-label="Get feedback"
