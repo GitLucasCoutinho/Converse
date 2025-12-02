@@ -39,17 +39,22 @@ export function ChatLayout() {
   const isLoggedIn = !!user;
 
   useEffect(() => {
-    if (isUserLoading) return; // Wait until user status is resolved
+    // Do not run this logic until the user's auth status is fully resolved.
+    if (isUserLoading) return;
 
     if (isLoggedIn) {
         // TODO: Load from cloud
         console.log("User is logged in, should load from cloud.");
         setConversations({}); // Clear local conversations
         setCurrentConversationId(null);
+        
+        // If after loading there are no cloud conversations, create a new one.
+        // This part will be more complex when cloud loading is implemented.
         if (Object.keys(conversations).length === 0) {
             handleNewChat();
         }
     } else {
+        // User is confirmed to be logged out, now we can safely load from local storage.
         const savedConversations = localStorage.getItem("conversations");
         if (savedConversations) {
           try {
@@ -81,12 +86,10 @@ export function ChatLayout() {
     };
 
     // Save to localStorage only if not logged in and there are conversations.
-    if (Object.keys(conversations).length > 0) {
+    if (Object.keys(conversations).length > 0 && !isUserLoading) {
       localStorage.setItem("conversations", JSON.stringify(conversations));
-    } else {
-      localStorage.removeItem("conversations");
     }
-  }, [conversations, isLoggedIn]);
+  }, [conversations, isLoggedIn, isUserLoading]);
 
   const handleNewChat = () => {
     const newId = Date.now().toString();
