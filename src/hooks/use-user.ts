@@ -10,8 +10,7 @@ export function useUser() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!auth) return;
-
+    // No need to check for auth existence, provider ensures it's there
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setIsLoading(false);

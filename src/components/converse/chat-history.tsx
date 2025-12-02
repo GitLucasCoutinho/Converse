@@ -25,7 +25,7 @@ export function ChatHistory({
   onNewChat,
   onDeleteChat,
   onImport,
-}: Omit<ChatHistoryProps, 'isLoggedIn'>) {
+}: ChatHistoryProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user, isLoading } = useUser();
   const isLoggedIn = !!user;
@@ -59,13 +59,23 @@ export function ChatHistory({
         try {
           const content = e.target?.result;
           if (typeof content === 'string') {
-            const importedConversations = JSON.parse(content);
-            // Basic validation
-            if (typeof importedConversations === 'object' && importedConversations !== null) {
-              onImport(importedConversations);
+            const importedData = JSON.parse(content);
+            // Support both array and object formats for import
+            let importedConversations: Record<string, Conversation>;
+            if (Array.isArray(importedData)) {
+              importedConversations = importedData.reduce((acc, convo) => {
+                if (convo.id) {
+                  acc[convo.id] = convo;
+                }
+                return acc;
+              }, {} as Record<string, Conversation>);
+            } else if (typeof importedData === 'object' && importedData !== null) {
+              importedConversations = importedData;
             } else {
-              alert('Invalid file format.');
+               alert('Invalid file format.');
+               return;
             }
+            onImport(importedConversations);
           }
         } catch (error) {
           console.error("Error parsing imported file:", error);

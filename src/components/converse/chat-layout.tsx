@@ -68,6 +68,7 @@ export function ChatLayout() {
     } else {
       handleNewChat();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoggedIn]);
 
   useEffect(() => {
@@ -99,17 +100,26 @@ export function ChatLayout() {
     setConversations((prev) => {
       const newConversations = { ...prev };
       delete newConversations[conversationId];
+      // Check if we are deleting the current chat
+      if (currentConversationId === conversationId) {
+        const remainingIds = Object.keys(newConversations);
+        if (remainingIds.length > 0) {
+          const sortedIds = remainingIds.sort((a, b) => Number(b) - Number(a));
+          setCurrentConversationId(sortedIds[0]);
+        } else {
+          // If no chats are left, create a new one
+          const newId = Date.now().toString();
+          const newConversation: Conversation = {
+            id: newId,
+            title: "New Chat",
+            messages: [initialMessage],
+          };
+          newConversations[newId] = newConversation;
+          setCurrentConversationId(newId);
+        }
+      }
       return newConversations;
     });
-    if (currentConversationId === conversationId) {
-      const remainingIds = Object.keys(conversations).filter(id => id !== conversationId);
-      if (remainingIds.length > 0) {
-        const sortedIds = remainingIds.sort((a, b) => Number(b) - Number(a));
-        setCurrentConversationId(sortedIds[0]);
-      } else {
-        handleNewChat();
-      }
-    }
   };
 
   const handleSelectChat = (conversationId: string) => {
@@ -297,7 +307,6 @@ export function ChatLayout() {
         onNewChat={handleNewChat}
         onDeleteChat={handleDeleteChat}
         onImport={handleImportConversations}
-        isLoggedIn={isLoggedIn}
       />
       <div className="flex h-full w-full flex-col flex-1">
         <Header 

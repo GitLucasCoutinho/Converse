@@ -8,10 +8,10 @@ import { ClientOnly } from "../client-only";
 import { useFirebase } from "@/firebase/client-provider";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { useUser } from "@/hooks/use-user";
+import { Loader } from "lucide-react";
 
 type HeaderProps = {
   onSummarize: () => void;
-  isLoggedIn: boolean;
   onLogin: () => void;
   onLogout: () => void;
 };
@@ -21,7 +21,6 @@ export function Header({ onSummarize, onLogin, onLogout }: Omit<HeaderProps, 'is
     const { user, isLoading } = useUser();
 
     const handleLogin = async () => {
-        if (!auth) return;
         const provider = new GoogleAuthProvider();
         try {
             await signInWithPopup(auth, provider);
@@ -32,7 +31,6 @@ export function Header({ onSummarize, onLogin, onLogout }: Omit<HeaderProps, 'is
     };
 
     const handleLogout = async () => {
-        if (!auth) return;
         try {
             await signOut(auth);
             onLogout();
@@ -55,12 +53,16 @@ export function Header({ onSummarize, onLogin, onLogout }: Omit<HeaderProps, 'is
         <ClientOnly>
           <ThemeSwitcher />
         </ClientOnly>
-        {user ? (
+        {isLoading ? (
+            <Button variant="outline" size="icon" disabled>
+                <Loader className="h-5 w-5 animate-spin" />
+            </Button>
+        ) : user ? (
           <Button variant="outline" size="icon" onClick={handleLogout}>
             <LogOut className="h-5 w-5" />
           </Button>
         ) : (
-          <Button variant="outline" size="icon" onClick={handleLogin} disabled={isLoading}>
+          <Button variant="outline" size="icon" onClick={handleLogin}>
             <GoogleIcon className="h-5 w-5" />
           </Button>
         )}

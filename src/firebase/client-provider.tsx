@@ -12,7 +12,8 @@ type FirebaseContextValue = {
 
 const FirebaseContext = createContext<FirebaseContextValue | null>(null);
 
-// Initialize Firebase outside of the component to ensure it's only done once.
+// Initialize Firebase outside of the component to ensure it's only done once
+// and is available synchronously.
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 const auth = getAuth(app);
 
