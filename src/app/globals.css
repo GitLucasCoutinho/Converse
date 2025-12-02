@@ -116,24 +116,24 @@ body {
   }
 
   .dark {
-    --background: 240 5% 10%;
-    --foreground: 240 5% 95%;
-    --card: 240 4% 12%;
+    --background: 240 6% 9%; /* Darker background */
+    --foreground: 240 5% 95%; /* Light foreground */
+    --card: 240 5% 12%;       /* Slightly lighter card */
     --card-foreground: 240 5% 95%;
-    --popover: 240 4% 12%;
+    --popover: 240 5% 12%;
     --popover-foreground: 240 5% 95%;
-    --primary: 262 52% 57%;
+    --primary: 262 52% 57%;   /* Keep primary color for accents */
     --primary-foreground: 262 50% 10%;
-    --secondary: 240 4% 20%;
+    --secondary: 240 4% 16%;  /* Darker secondary */
     --secondary-foreground: 240 5% 98%;
-    --muted: 240 4% 15%;
+    --muted: 240 4% 16%;      /* Darker muted */
     --muted-foreground: 240 5% 65%;
     --accent: 231 48% 64%;
     --accent-foreground: 231 50% 10%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 4% 20%;
-    --input: 240 4% 20%;
+    --border: 240 4% 18%;     /* Darker border */
+    --input: 240 4% 18%;      /* Darker input */
     --ring: 262 52% 57%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
