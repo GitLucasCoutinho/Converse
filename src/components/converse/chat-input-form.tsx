@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Mic, SendHorizonal } from "lucide-react";
+import { Mic, SendHorizonal, StopCircle } from "lucide-react";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +21,8 @@ type ChatInputFormProps = {
 
 export function ChatInputForm({ onSendMessage, isLoading }: ChatInputFormProps) {
   const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -31,16 +33,57 @@ export function ChatInputForm({ onSendMessage, isLoading }: ChatInputFormProps) 
 
   const { isDirty } = useFormState({ control: form.control });
 
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = (event) => {
+        let interimTranscript = "";
+        let finalTranscript = "";
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
+        }
+        form.setValue("message", form.getValues("message") + finalTranscript + interimTranscript);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognition.onerror = (event) => {
+        console.error("Speech recognition error", event.error);
+        setIsListening(false);
+      };
+      
+      recognitionRef.current = recognition;
+    }
+
+    return () => {
+      recognitionRef.current?.stop();
+    };
+  }, [form]);
+
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     onSendMessage(values.message);
     form.reset();
   };
 
   const handleMicClick = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+    } else {
+      form.reset();
+      recognitionRef.current?.start();
+    }
     setIsListening((prev) => !prev);
-    // In a real app, you would start/stop voice recognition here.
-    // For this mock, we just toggle the state and focus the textarea.
-    textareaRef.current?.focus();
   };
   
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -69,10 +112,10 @@ export function ChatInputForm({ onSendMessage, isLoading }: ChatInputFormProps) 
             size="icon"
             variant="ghost"
             onClick={handleMicClick}
-            className={cn("shrink-0", isListening && "text-primary animate-pulse")}
+            className={cn("shrink-0", isListening && "text-primary")}
             aria-label={isListening ? "Stop listening" : "Start listening"}
           >
-            <Mic />
+            {isListening ? <StopCircle className="animate-pulse" /> : <Mic />}
           </Button>
           <FormField
             control={form.control}
