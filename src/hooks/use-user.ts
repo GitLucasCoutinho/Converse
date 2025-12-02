@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { onAuthStateChanged, type User, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-import { auth } from '@/firebase'; // Importar a instância de auth do novo arquivo central
+import { auth } from '@/firebase'; // Importar a instância de auth do arquivo central
 
 export function useUser() {
   const [user, setUser] = useState<User | null>(null);
@@ -14,6 +14,7 @@ export function useUser() {
       setIsLoading(false);
     });
 
+    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 
