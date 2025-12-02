@@ -29,19 +29,21 @@ export function ThemeSwitcher() {
 
   const handleColorChange = (color: string) => {
     const currentMode = theme?.startsWith('dark') ? 'dark' : 'light';
-    if (color === 'default') {
-      setTheme(currentMode);
-    } else {
-      setTheme(`${currentMode}-${color}`);
-    }
+    setTheme(`${currentMode}-${color}`);
   };
   
   const handleModeChange = (mode: 'light' | 'dark') => {
-    const currentColor = theme?.split('-')[1];
-    if (currentColor && currentColor !== 'light' && currentColor !== 'dark') {
-      setTheme(`${mode}-${currentColor}`);
+    const currentTheme = theme || 'light-green';
+    const color = currentTheme.split('-')[1];
+
+    if (color && color !== 'light' && color !== 'dark') {
+      setTheme(`${mode}-${color}`);
     } else {
-      setTheme(mode);
+        if (mode === 'light') {
+            setTheme('light-green');
+        } else {
+            setTheme('dark');
+        }
     }
   };
 
