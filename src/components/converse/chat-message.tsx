@@ -36,8 +36,8 @@ export function ChatMessage({ message, onGetFeedback }: ChatMessageProps) {
     >
       {!isUser && (
         <Avatar className="h-8 w-8 border">
-          <div className="flex h-full w-full items-center justify-center bg-primary">
-            <Bot className="h-5 w-5 text-primary-foreground" />
+          <div className="flex h-full w-full items-center justify-center bg-accent">
+            <Bot className="h-5 w-5 text-accent-foreground" />
           </div>
         </Avatar>
       )}
