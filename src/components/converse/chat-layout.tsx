@@ -134,18 +134,16 @@ export function ChatLayout() {
   }, [messages]);
 
   return (
-    <div className="flex h-screen w-full flex-col items-center bg-background p-4">
-      <div className="flex h-full w-full max-w-4xl flex-col">
-        <Header onSummarize={handleGetSummary} />
-        <Card className="flex flex-1 flex-col overflow-hidden">
-          <ChatMessages
-            messages={messages}
-            isLoading={isLoading}
-            onGetFeedback={handleGetFeedback}
-          />
-          <ChatInputForm onSendMessage={handleSendMessage} isLoading={isLoading} />
-        </Card>
-      </div>
+    <div className="flex h-full w-full flex-col">
+      <Header onSummarize={handleGetSummary} />
+      <Card className="flex flex-1 flex-col overflow-hidden">
+        <ChatMessages
+          messages={messages}
+          isLoading={isLoading}
+          onGetFeedback={handleGetFeedback}
+        />
+        <ChatInputForm onSendMessage={handleSendMessage} isLoading={isLoading} />
+      </Card>
       <AlertDialog open={isSummaryOpen} onOpenChange={setIsSummaryOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

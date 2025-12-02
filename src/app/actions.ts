@@ -3,6 +3,7 @@
 import { generateContextualResponse } from "@/ai/flows/generate-contextual-response";
 import { provideFeedback } from "@/ai/flows/provide-feedback-on-user-input";
 import { summarizeConversationHistory } from "@/ai/flows/summarize-conversation-history";
+import { translateText } from "@/ai/flows/translate-text-flow";
 import { translateWord } from "@/ai/flows/translate-word-flow";
 import { z } from "zod";
 
@@ -48,3 +49,16 @@ export const getTranslation = async (
   const validatedInput = translateWordSchema.parse(input);
   return await translateWord({ ...validatedInput, targetLanguage: "Portuguese" });
 };
+
+const translateTextSchema = z.object({
+    text: z.string(),
+    sourceLanguage: z.string(),
+    targetLanguage: z.string(),
+});
+
+export const getFullTranslation = async (
+    input: z.infer<typeof translateTextSchema>
+) => {
+    const validatedInput = translateTextSchema.parse(input);
+    return await translateText(validatedInput);
+}
