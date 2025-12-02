@@ -288,16 +288,6 @@ export function ChatLayout() {
     }
   }, [currentConversationId, conversations]);
 
-  const handleLogin = () => {
-    // This is now handled by the auth state change
-    console.log("Logged in!");
-  };
-  const handleLogout = () => {
-    // This is now handled by the auth state change
-    console.log("Logged out!");
-  };
-
-
   return (
     <div className="flex h-full w-full gap-4">
       <ChatHistory 
@@ -311,8 +301,6 @@ export function ChatLayout() {
       <div className="flex h-full w-full flex-col flex-1">
         <Header 
             onSummarize={handleGetSummary}
-            onLogin={handleLogin}
-            onLogout={handleLogout}
         />
         <Card className="flex flex-1 flex-col overflow-hidden">
           <ChatMessages

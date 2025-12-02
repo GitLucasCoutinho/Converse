@@ -12,11 +12,9 @@ import { Loader } from "lucide-react";
 
 type HeaderProps = {
   onSummarize: () => void;
-  onLogin: () => void;
-  onLogout: () => void;
 };
 
-export function Header({ onSummarize, onLogin, onLogout }: Omit<HeaderProps, 'isLoggedIn'>) {
+export function Header({ onSummarize }: HeaderProps) {
     const { auth } = useFirebase();
     const { user, isLoading } = useUser();
 
@@ -24,7 +22,6 @@ export function Header({ onSummarize, onLogin, onLogout }: Omit<HeaderProps, 'is
         const provider = new GoogleAuthProvider();
         try {
             await signInWithPopup(auth, provider);
-            onLogin();
         } catch (error) {
             console.error("Error signing in with Google", error);
         }
@@ -33,7 +30,6 @@ export function Header({ onSummarize, onLogin, onLogout }: Omit<HeaderProps, 'is
     const handleLogout = async () => {
         try {
             await signOut(auth);
-            onLogout();
         } catch (error) {
             console.error("Error signing out", error);
         }
