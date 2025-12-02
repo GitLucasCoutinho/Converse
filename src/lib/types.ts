@@ -3,6 +3,7 @@ export type Message = {
   role: "user" | "assistant";
   content: string;
   feedback?: string;
+  feedbackTranslation?: string;
   isFeedbackLoading?: boolean;
   translation?: string;
 };

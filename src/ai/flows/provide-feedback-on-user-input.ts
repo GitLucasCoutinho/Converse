@@ -21,6 +21,7 @@ const ProvideFeedbackOutputSchema = z.object({
   feedback: z
     .string()
     .describe('The feedback on the input text, including suggestions for corrections or improvements.'),
+  translation: z.string().describe('The Portuguese translation of the feedback.'),
 });
 export type ProvideFeedbackOutput = z.infer<typeof ProvideFeedbackOutputSchema>;
 
@@ -32,7 +33,11 @@ const prompt = ai.definePrompt({
   name: 'provideFeedbackPrompt',
   input: {schema: ProvideFeedbackInputSchema},
   output: {schema: ProvideFeedbackOutputSchema},
-  prompt: `You are a helpful assistant that provides feedback on user-provided text. Analyze the text and provide suggestions for corrections, improvements in grammar, clarity, and overall quality.\n\nText: {{{text}}}\n\nFeedback:`,
+  prompt: `You are a helpful assistant that provides feedback on user-provided text. Analyze the text and provide suggestions for corrections, improvements in grammar, clarity, and overall quality. Also provide a translation of the feedback in Portuguese.
+
+Text: {{{text}}}
+
+Feedback:`,
 });
 
 const provideFeedbackFlow = ai.defineFlow(

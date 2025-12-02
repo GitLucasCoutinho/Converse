@@ -91,7 +91,11 @@ export function ChatLayout() {
       setMessages((prev) =>
         prev.map((m) =>
           m.id === messageId
-            ? { ...m, feedback: feedbackResponse.feedback }
+            ? {
+                ...m,
+                feedback: feedbackResponse.feedback,
+                feedbackTranslation: feedbackResponse.translation,
+              }
             : m
         )
       );

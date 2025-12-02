@@ -63,9 +63,12 @@ export function ChatMessage({ message, onGetFeedback }: ChatMessageProps) {
         )}
         
         {message.feedback && (
-          <div className="mt-2 border-t border-muted-foreground/20 pt-2 text-sm">
+          <div className="mt-2 border-t border-primary-foreground/20 pt-2 text-sm">
              <p className="font-semibold mb-1">Feedback:</p>
              <p className="italic">{message.feedback}</p>
+             {message.feedbackTranslation && (
+                <p className="italic text-primary-foreground/70 mt-1">{message.feedbackTranslation}</p>
+             )}
           </div>
         )}
 
