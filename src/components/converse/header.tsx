@@ -34,14 +34,11 @@ export function Header({ onSummarize, isLoggedIn, onLogin, onLogout }: HeaderPro
             Logout
           </Button>
         ) : (
-          <Button variant="outline" onClick={onLogin}>
-            <GoogleIcon className="mr-2 h-4 w-4" />
-            Login with Google
+          <Button variant="outline" size="icon" onClick={onLogin}>
+            <GoogleIcon className="h-5 w-5" />
           </Button>
         )}
       </div>
     </header>
   );
 }
-
-    
