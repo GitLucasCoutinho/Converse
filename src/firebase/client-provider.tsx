@@ -12,23 +12,16 @@ type FirebaseContextValue = {
 
 const FirebaseContext = createContext<FirebaseContextValue | null>(null);
 
-let firebaseApp: FirebaseApp;
-if (!getApps().length) {
-  firebaseApp = initializeApp(firebaseConfig);
-} else {
-  firebaseApp = getApps()[0];
-}
-const auth = getAuth(firebaseApp);
+// Initialize Firebase outside of the component to ensure it's only done once.
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+const auth = getAuth(app);
 
 export function FirebaseProvider({ children }: { children: ReactNode }) {
-  const [app, setApp] = useState<FirebaseApp | null>(null);
-
-  useEffect(() => {
-    setApp(firebaseApp);
-  }, []);
+  // The value is now static and doesn't need to be in a state.
+  const value = { app, auth };
 
   return (
-    <FirebaseContext.Provider value={{ app, auth }}>
+    <FirebaseContext.Provider value={value}>
       {children}
     </FirebaseContext.Provider>
   );
