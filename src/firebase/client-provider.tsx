@@ -1,13 +1,13 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, ReactNode } from "react";
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import { getAuth, type Auth } from "firebase/auth";
 import { firebaseConfig } from "./config";
 
 type FirebaseContextValue = {
-  app: FirebaseApp | null;
-  auth: Auth | null;
+  app: FirebaseApp;
+  auth: Auth;
 };
 
 const FirebaseContext = createContext<FirebaseContextValue | null>(null);
