@@ -1,9 +1,9 @@
 "use client";
 
 import { createContext, useContext, ReactNode } from "react";
-import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
-import { getAuth, type Auth } from "firebase/auth";
-import { firebaseConfig } from "./config";
+import type { FirebaseApp } from "firebase/app";
+import type { Auth } from "firebase/auth";
+import { app, auth } from "./index"; // Importar instâncias estáveis
 
 type FirebaseContextValue = {
   app: FirebaseApp;
@@ -12,13 +12,8 @@ type FirebaseContextValue = {
 
 const FirebaseContext = createContext<FirebaseContextValue | null>(null);
 
-// Initialize Firebase outside of the component to ensure it's only done once
-// and is available synchronously.
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
-const auth = getAuth(app);
-
+// O provider agora apenas passa as instâncias já criadas para o contexto.
 export function FirebaseProvider({ children }: { children: ReactNode }) {
-  // The value is now static and doesn't need to be in a state.
   const value = { app, auth };
 
   return (
