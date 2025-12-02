@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Moon, Sun, Palette, Check } from "lucide-react"
+import { Moon, Sun, Palette } from "lucide-react"
 import { useTheme } from "next-themes"
 
 import { Button } from "@/components/ui/button"
@@ -16,38 +16,34 @@ import {
   DropdownMenuSubContent
 } from "@/components/ui/dropdown-menu"
 
-const themes = [
-    { name: 'Lilac', class: 'theme-default' },
-    { name: 'Green', class: 'theme-green' },
-    { name: 'Blue', class: 'theme-blue' },
-    { name: 'Pink', class: 'theme-pink' },
-    { name: 'Red', class: 'theme-red' },
+const colorThemes = [
+    { name: 'Lilac', value: 'default' },
+    { name: 'Green', value: 'green' },
+    { name: 'Blue', value: 'blue' },
+    { name: 'Pink', value: 'pink' },
+    { name: 'Red', value: 'red' },
 ];
 
 export function ThemeSwitcher() {
-  const { setTheme } = useTheme()
-  const [currentTheme, setCurrentTheme] = React.useState('theme-default');
+  const { setTheme, theme } = useTheme()
 
-  React.useEffect(() => {
-    const themeColor = localStorage.getItem('theme-color') || 'theme-default';
-    setCurrentTheme(themeColor);
-    
-    // remove other theme classes
-    document.body.classList.remove(...themes.map(t => t.class));
-    if (themeColor !== 'theme-default') {
-        document.body.classList.add(themeColor);
-    }
-  }, []);
-
-  const handleThemeChange = (themeClass: string) => {
-    setCurrentTheme(themeClass);
-    localStorage.setItem('theme-color', themeClass);
-    document.body.classList.remove(...themes.map(t => t.class));
-    if (themeClass !== 'theme-default') {
-        document.body.classList.add(themeClass);
+  const handleColorChange = (color: string) => {
+    const currentMode = theme?.startsWith('dark') ? 'dark' : 'light';
+    if (color === 'default') {
+      setTheme(currentMode);
+    } else {
+      setTheme(`${currentMode}-${color}`);
     }
   };
-
+  
+  const handleModeChange = (mode: 'light' | 'dark') => {
+    const currentColor = theme?.split('-')[1];
+    if (currentColor && currentColor !== 'light' && currentColor !== 'dark') {
+      setTheme(`${mode}-${currentColor}`);
+    } else {
+      setTheme(mode);
+    }
+  };
 
   return (
     <DropdownMenu>
@@ -64,9 +60,8 @@ export function ThemeSwitcher() {
                 <span>Color Theme</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
-                {themes.map((t) => (
-                    <DropdownMenuItem key={t.class} onClick={() => handleThemeChange(t.class)}>
-                         <Check className={`mr-2 h-4 w-4 ${currentTheme === t.class ? 'opacity-100' : 'opacity-0'}`} />
+                {colorThemes.map((t) => (
+                    <DropdownMenuItem key={t.value} onClick={() => handleColorChange(t.value)}>
                         {t.name}
                     </DropdownMenuItem>
                 ))}
@@ -75,11 +70,11 @@ export function ThemeSwitcher() {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem onClick={() => setTheme("light")}>
+        <DropdownMenuItem onClick={() => handleModeChange("light")}>
           <Sun className="mr-2 h-4 w-4" />
           <span>Light</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
+        <DropdownMenuItem onClick={() => handleModeChange("dark")}>
           <Moon className="mr-2 h-4 w-4" />
           <span>Dark</span>
         </DropdownMenuItem>

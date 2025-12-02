@@ -7,7 +7,7 @@ body {
 }
 
 @layer base {
-  :root {
+  :root, .light, .light-default {
     --background: 265 53% 94%;
     --foreground: 262 52% 15%;
     --card: 265 53% 98%;
@@ -35,7 +35,7 @@ body {
     --radius: 0.5rem;
   }
   
-  .theme-green {
+  .light-green {
     --background: 145 35% 94%;
     --foreground: 145 35% 15%;
     --card: 145 35% 98%;
@@ -55,7 +55,7 @@ body {
     --ring: 145 35% 47%;
   }
 
-  .theme-blue {
+  .light-blue {
     --background: 210 55% 94%;
     --foreground: 210 55% 15%;
     --card: 210 55% 98%;
@@ -75,7 +75,7 @@ body {
     --ring: 210 55% 47%;
   }
 
-  .theme-pink {
+  .light-pink {
     --background: 340 60% 94%;
     --foreground: 340 60% 15%;
     --card: 340 60% 98%;
@@ -95,7 +95,7 @@ body {
     --ring: 340 60% 60%;
   }
   
-  .theme-red {
+  .light-red {
     --background: 0 60% 94%;
     --foreground: 0 60% 15%;
     --card: 0 60% 98%;
@@ -115,17 +115,17 @@ body {
     --ring: 0 60% 50%;
   }
 
-  .dark {
+  .dark, .dark-default {
     --background: 240 10% 3.9%;
-    --foreground: 240 5% 95%;
+    --foreground: 0 0% 98%;
     --card: 240 5.9% 10%;
-    --card-foreground: 240 5% 95%;
+    --card-foreground: 0 0% 98%;
     --popover: 240 5.9% 10%;
-    --popover-foreground: 240 5% 95%;
+    --popover-foreground: 0 0% 98%;
     --primary: 262 52% 57%;
     --primary-foreground: 262 50% 10%;
     --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 240 5% 98%;
+    --secondary-foreground: 0 0% 98%;
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
     --accent: 25 95% 53%;
@@ -142,7 +142,7 @@ body {
     --chart-5: 340 75% 55%;
   }
 
-  .dark.theme-green {
+  .dark-green {
     --background: 145 35% 10%;
     --foreground: 145 35% 94%;
     --card: 145 35% 12%;
@@ -162,7 +162,7 @@ body {
     --ring: 145 35% 57%;
   }
 
-  .dark.theme-blue {
+  .dark-blue {
     --background: 210 55% 10%;
     --foreground: 210 55% 94%;
     --card: 210 55% 12%;
@@ -182,7 +182,7 @@ body {
     --ring: 210 55% 57%;
   }
 
-  .dark.theme-pink {
+  .dark-pink {
     --background: 340 60% 10%;
     --foreground: 340 60% 94%;
     --card: 340 60% 12%;
@@ -202,7 +202,7 @@ body {
     --ring: 340 60% 60%;
   }
 
-  .dark.theme-red {
+  .dark-red {
     --background: 0 60% 10%;
     --foreground: 0 60% 94%;
     --card: 0 60% 12%;
