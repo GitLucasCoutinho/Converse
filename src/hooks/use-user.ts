@@ -1,21 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { onAuthStateChanged, GoogleAuthProvider, signInWithRedirect, signOut, type User, setPersistence, browserLocalPersistence } from "firebase/auth";
+import { useCallback } from "react";
+import { GoogleAuthProvider, signInWithRedirect, signOut, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { auth } from "@/firebase";
+import { useFirebase } from "@/firebase/client-provider";
 
 export function useUser() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setIsLoading(false);
-    });
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, []);
+  const { user, isLoading } = useFirebase();
 
   const login = useCallback(async () => {
     const provider = new GoogleAuthProvider();

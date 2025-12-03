@@ -26,18 +26,18 @@ export default function RootLayout({
           inter.variable
         )}
       >
-        <FirebaseProvider>
-          <ThemeProvider
+        <ThemeProvider
             attribute="class"
             defaultTheme="light-green"
             enableSystem={false}
             disableTransitionOnChange
             storageKey="converse-theme-v2"
           >
+          <FirebaseProvider>
             {children}
             <Toaster />
-          </ThemeProvider>
-        </FirebaseProvider>
+          </FirebaseProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
