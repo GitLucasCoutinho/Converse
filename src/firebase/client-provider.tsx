@@ -20,32 +20,39 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // This is the ideal way to handle redirect results.
-    // It actively checks for a redirect result when the app loads.
-    getRedirectResult(auth)
-      .then((result) => {
+    // This function will be executed once when the component mounts.
+    const processAuth = async () => {
+      try {
+        // First, actively check for a redirect result.
+        // This is crucial for capturing the user after they return from Google's login page.
+        const result = await getRedirectResult(auth);
         if (result) {
-          // User successfully signed in.
+          // If there's a result, the user is now logged in.
+          // Set the user and we can stop loading.
           setUser(result.user);
         }
-        // Even if result is null, we set loading to false.
-        // It just means the page was loaded without a redirect.
-      })
-      .catch((error) => {
-        console.error("Error getting redirect result:", error);
-      })
-      .finally(() => {
-         // Now, set up the normal auth state listener for any future changes
-         // (like logging out or token refresh).
-         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
-            setIsLoading(false);
-         });
-         
-         // In a real app, you'd return unsubscribe to clean up.
-         // For this scenario, we'll keep it simple as the provider is at the root.
-      });
+      } catch (error) {
+        // Handle potential errors from getRedirectResult, e.g., credential already in use.
+        console.error("Error processing redirect result:", error);
+      } finally {
+        // After checking for a redirect, set up the normal auth state listener.
+        // This will handle all other auth changes, like manual sign-ins, sign-outs,
+        // and keeping the session alive.
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+          setUser(currentUser);
+          // Only set loading to false here, ensuring we have a definitive auth state.
+          setIsLoading(false);
+        });
 
+        // In a real app, you'd want to return this unsubscribe function
+        // to clean up the listener when the provider unmounts.
+        // For this context, it's okay to omit for simplicity as it lives at the root.
+      }
+    };
+
+    processAuth();
+    
+    // The empty dependency array ensures this effect runs only once on mount.
   }, []);
 
   const value = { app, auth, user, isLoading };
