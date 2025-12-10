@@ -5,12 +5,12 @@ import { ClientOnly } from "@/components/client-only";
 export default function Home() {
   return (
     <div className="flex h-screen w-full flex-col items-center bg-background p-4 gap-4 lg:flex-row lg:items-start lg:justify-center">
-      <div className="w-full h-full lg:max-w-7xl flex gap-4">
+      <div className="w-full h-full lg:w-1/2 lg:max-w-3xl">
         <ClientOnly>
           <ChatLayout />
         </ClientOnly>
       </div>
-      <div className="w-full h-full lg:max-w-3xl">
+      <div className="w-full h-full lg:w-1/2 lg:max-w-3xl">
         <ClientOnly>
           <Translator />
         </ClientOnly>

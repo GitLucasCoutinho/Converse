@@ -7,9 +7,3 @@ export type Message = {
   isFeedbackLoading?: boolean;
   translation?: string;
 };
-
-export type Conversation = {
-  id: string;
-  title: string;
-  messages: Message[];
-};
